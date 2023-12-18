@@ -1,79 +1,98 @@
 function calculateSalary() {
-  const basicSalary =
-    parseFloat(document.getElementById("basicSalary").value) || 0;
-  const benefits = parseFloat(document.getElementById("benefits").value) || 0;
+  const basicSalary = parseFloat(document.getElementById("basicSalary").value);
+  const benefits = parseFloat(document.getElementById("benefits").value);
 
-  // PAYE rates
-  const payeRates = [
-    { min: 0, max: 24000, rate: 10 },
-    { min: 24001, max: 32333, rate: 25 },
-    { min: 32334, max: 500000, rate: 30 },
-    { min: 500001, max: 800000, rate: 32.5 },
-    { min: 800001, max: Infinity, rate: 35 },
-  ];
+  // Tax (PAYE) calculation
+  let taxRate = 0;
+  if (basicSalary <= 24000) {
+    taxRate = 0.1;
+  } else if (basicSalary <= 32333) {
+    taxRate = 0.25;
+  } else {
+    taxRate = 0.3;
+  }
 
-  // NHIF rates
-  const nhifRates = [
-    { min: 0, max: 5999, deduction: 150 },
-    // ... (Add all NHIF rate bands here)
-  ];
+  const payee = basicSalary * taxRate;
+  let pension = 2400;
+  let nhifDeductionsValue = nhifDeductions();
+  let nssfDeductionsValue = nssfDeductions();
+  let totalDeducations =
+    payee + pension + nhifDeductionsValue + nssfDeductionsValue;
 
-  // NSSF rates
-  const nssfRates = [
-    { tier: "I", min: 0, max: 6000, contribution: 6 },
-    // ... (Add all NSSF rate bands here)
-  ];
+  // NHIF Deductions calculation
+  function nhifDeductions() {
+    let nhifDeductionsValue = 0;
+    // NHIF deduction logic goes here
+    if (basicSalary <= 5999) {
+      return 150;
+    } else if (basicSalary >= 6000 && basicSalary < 8000) {
+      return 300;
+    } else if (basicSalary >= 8000 && basicSalary < 12000) {
+      return 400;
+    } else if (basicSalary >= 12000 && basicSalary < 15000) {
+      return 500;
+    } else if (basicSalary >= 15000 && basicSalary < 20000) {
+      return 600;
+    } else if (basicSalary >= 20000 && basicSalary < 25000) {
+      return 750;
+    } else if (basicSalary >= 25000 && basicSalary < 30000) {
+      return 850;
+    } else if (basicSalary >= 30000 && basicSalary < 35000) {
+      return 900;
+    } else if (basicSalary >= 35000 && basicSalary < 40000) {
+      return 950;
+    } else if (basicSalary >= 40000 && basicSalary < 45000) {
+      return 1000;
+    } else if (basicSalary >= 45000 && basicSalary < 50000) {
+      return 1100;
+    } else if (basicSalary >= 50000 && basicSalary < 60000) {
+      return 1200;
+    } else if (basicSalary >= 60000 && basicSalary < 70000) {
+      return 1300;
+    } else if (basicSalary >= 70000 && basicSalary < 80000) {
+      return 1400;
+    } else if (basicSalary >= 80000 && basicSalary < 90000) {
+      return 1500;
+    } else if (basicSalary >= 90000 && basicSalary < 100000) {
+      return 1600;
+    } else if (basicSalary >= 100000) {
+      return 1700;
+    }
 
-  // Calculate PAYE
-  let taxableIncome = basicSalary + benefits;
-  let paye = calculateTax(payeRates, taxableIncome);
+    return nhifDeductionsValue;
+  }
 
-  // Calculate NHIF
-  let nhif = calculateDeduction(nhifRates, taxableIncome);
+  // NSSF Deductions calculation
+  function nssfDeductions() {
+    let nssfDeductionsValue = parseInt(basicSalary * (6 / 100));
 
-  // Calculate NSSF
-  let nssf = calculateContribution(nssfRates, basicSalary);
+    // NSSF deduction logic goes here
+    if (basicSalary <= 100000) {
+      return nssfDeductionsValue;
+    } else if (basicSalary > 100000 && nssfDeductionsValue < 18000) {
+      return nssfDeductionsValue;
+    } else if (basicSalary > 100000 && nssfDeductionsValue >= 18000) {
+      return 18000;
+    }
 
-  // Calculate net salary
-  let netSalary = taxableIncome - paye - nhif - nssf;
+    return nssfDeductionsValue;
+  }
 
-  // Display results
+  // Gross Salary calculation
+  const grossSalary = basicSalary + benefits;
+
+  // Net Salary calculation
+  const netSalary = grossSalary - totalDeducations;
+
   // Display results
   document.getElementById("grossSalaryRow").lastElementChild.textContent =
-    taxableIncome.toFixed(2);
+    grossSalary.toFixed(2);
   document.getElementById("payeRow").lastElementChild.textContent =
-    paye.toFixed(2);
+    payee.toFixed(2);
   document.getElementById("nhifRow").lastElementChild.textContent =
-    nhif.toFixed(2);
+    nhifDeductionsValue.toFixed(2);
   document.getElementById("nssfRow").lastElementChild.textContent =
-    nssf.toFixed(2);
+    nssfDeductionsValue.toFixed(2);
   document.getElementById("netSalaryRow").lastElementChild.textContent =
     netSalary.toFixed(2);
-}
-
-function calculateTax(rates, income) {
-  for (const rate of rates) {
-    if (income >= rate.min && income <= rate.max) {
-      return income * (rate.rate / 100);
-    }
-  }
-  return 0;
-}
-
-function calculateDeduction(rates, income) {
-  for (const rate of rates) {
-    if (income >= rate.min && income <= rate.max) {
-      return rate.deduction;
-    }
-  }
-  return 0;
-}
-
-function calculateContribution(rates, income) {
-  for (const rate of rates) {
-    if (income >= rate.min && income <= rate.max) {
-      return income * (rate.contribution / 100);
-    }
-  }
-  return 0;
 }
