@@ -112,4 +112,8 @@ Responsive layout for a seamless experience on various devices.
 
 \***_AND THAT IS ALL_**
 
+[x]LICENSE:
+
+- see the license in the LICENSE.md file...
+
 **By: `KHALID SHEIKH ABDIRAHMAN MURSAL`**
